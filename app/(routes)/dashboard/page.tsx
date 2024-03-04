@@ -10,6 +10,10 @@ import {
 import { useMutation } from 'convex/react';
 import { useEffect } from 'react';
 
+/**
+ * 仪表盘页面
+ * @returns {JSX.Element}
+ */
 function Dashboard() {
   const { user } = useKindeBrowserClient();
   const convex = useConvex();
@@ -19,8 +23,12 @@ function Dashboard() {
       checkUser();
     }
   }, [user]);
-
-  /*   检查用户是否存在，如果不存在，则创建一个新用户 */
+  /**
+   * 检查用户是否存在,
+   * 如果不存在则创建用户
+   * @returns {Promise<void>}
+   * @private {void}
+   */
   const checkUser = async () => {
     const result = await convex.query(api.user.getUser, {
       email: user?.email ?? ''

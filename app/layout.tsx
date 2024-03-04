@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import './globals.css';
 import React from 'react';
 import ConvexClientProvider from './ConvexClientProvider';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: ReadonlyChildren) {
               {children}
             </ThemeProvider>
           </ConvexClientProvider>
+          <Toaster />
         </body>
       </head>
     </html>
