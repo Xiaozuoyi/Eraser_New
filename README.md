@@ -1,8 +1,8 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Eraser (橡皮擦)
 
 ## Getting Started
 
-First, run the development server:
+首先，运行开发服务器:
 
 ```bash
 npm run dev
@@ -13,6 +13,20 @@ pnpm dev
 # or
 bun dev
 ```
+
+## 技术栈
+
+- Next.js -- 一个基于 React 的框架
+- TypeScript -- 一个静态类型检查工具
+- Tailwind CSS -- 一个 CSS 框架
+- Next-Themes -- 一个主题切换库
+- shadcn/UI -- 一个基于 React 的 UI 库
+- lucide-react -- 一个图标库
+- hyperui -- 一个基于 React 的 UI 库
+- kinde -- 一个身份验证库
+- convex -- 一个后端应用程序平台
+
+---
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
