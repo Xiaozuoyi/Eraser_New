@@ -12,6 +12,7 @@ export const Header = () => {
           width={100}
           height={100}
           priority={true}
+          style={{ width: 100, height: 100 }}
         />
 
         <div className="flex flex-1 items-center justify-end md:justify-between">
