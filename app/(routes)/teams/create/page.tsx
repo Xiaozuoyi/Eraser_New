@@ -35,7 +35,13 @@ function CreateTeam() {
   };
   return (
     <div className="px-6 md:px-16 my-16">
-      <Image src="/logo.svg" alt="logo" width={200} height={200} />
+      <Image
+        src="/logo.svg"
+        alt="logo"
+        width={0}
+        height={0}
+        style={{ width: 150, height: 150 }}
+      />
       <div className="flex flex-col items-center mt-8">
         <h2 className="font-bold text-[40px] py-3 text-black dark:text-white">
           我们应该如何称呼你的团队？
