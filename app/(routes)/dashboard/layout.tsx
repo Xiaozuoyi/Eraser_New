@@ -3,10 +3,13 @@ import { api } from '@/convex/_generated/api';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import { useConvex } from 'convex/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import SideNav from './_components/SideNav';
+import {
+  FilesListContext,
+  type FilesListContextType
+} from '@/app/_context/FilesListContext';
 type ReadonlyChildren = Readonly<{ children: React.ReactNode }>;
-
 /**
  * 仪表盘布局 - 用于包裹仪表盘页面
  * @param children
@@ -16,6 +19,9 @@ const DashboardLayout = ({ children }: ReadonlyChildren) => {
   const convex = useConvex();
   const { user } = useKindeBrowserClient();
   const router = useRouter();
+  const [fileListings, setFileListings] = useState<
+    FilesListContextType['fileListings']
+  >([]);
   useEffect(() => {
     user && checkTeam();
   }, [user]);
@@ -25,7 +31,7 @@ const DashboardLayout = ({ children }: ReadonlyChildren) => {
    * @returns {Promise<void>}
    * @private {void}
    */
-  const checkTeam = async () => {
+  const checkTeam = async (): Promise<void> => {
     const result = await convex.query(api.teams.getTeam, {
       email: user?.email ?? ''
     });
@@ -36,12 +42,14 @@ const DashboardLayout = ({ children }: ReadonlyChildren) => {
 
   return (
     <>
-      <div className="grid grid-cols-4">
-        <div>
-          <SideNav />
+      <FilesListContext.Provider value={{ fileListings, setFileListings }}>
+        <div className="grid grid-cols-4">
+          <div className="h-screen w-72 fixed">
+            <SideNav />
+          </div>
+          <div className="col-span-4 ml-72">{children}</div>
         </div>
-        <div className="grid-cols-3">{children}</div>
-      </div>
+      </FilesListContext.Provider>
     </>
   );
 };

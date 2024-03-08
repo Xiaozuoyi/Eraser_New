@@ -11,19 +11,51 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { File } from 'lucide-react';
-import { useState } from 'react';
-export default function AddFileDialog() {
+import { useEffect, useState } from 'react';
+
+type AddFileDialogProps = {
+  onFileCreate: (fileName: string) => void;
+  totalFiles: number;
+};
+
+export default function AddFileDialog({
+  onFileCreate,
+  totalFiles
+}: AddFileDialogProps) {
   const [fileInput, setFileInput] = useState('');
-  const disabled = fileInput && fileInput.length > 3 ? false : true;
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const disabled = fileInput && fileInput.length > 3 ? false : true;
+    setIsOpen(disabled);
+  }, [fileInput]);
+  const OpenChange = (isLoading: boolean) => {
+    setIsOpen(isLoading);
+  };
+  const ButtonClick = () => {
+    onFileCreate(fileInput);
+    setFileInput('');
+  };
+
+  function newFile() {
+    const isMaxFilesReached = totalFiles === 5;
+    const buttonClassName = `flex items-center justify-start gap-2 p-2 rounded-lg cursor-pointer mt-3 text-white w-full ${
+      isMaxFilesReached ? 'bg-slate-600' : 'bg-blue-600 hover:bg-blue-700'
+    }`;
+
+    return (
+      <button className={buttonClassName} disabled={isMaxFilesReached}>
+        <File className="w-5 h-5" />
+        New File
+      </button>
+    );
+  }
+  0;
+
   return (
     <>
-      <Dialog>
-        <DialogTrigger asChild>
-          <button className="flex items-center justify-start gap-2 bg-blue-600 hover:bg-blue-700 p-2 rounded-lg cursor-pointer mt-3 text-white w-full">
-            <File className="w-5 h-5" />
-            New File
-          </button>
-        </DialogTrigger>
+      <Dialog onOpenChange={OpenChange}>
+        <DialogTrigger asChild>{newFile()}</DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>创建新文件</DialogTitle>
@@ -36,21 +68,15 @@ export default function AddFileDialog() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="secondary"
-              className="bg-blue-600 hover:bg-blue-700 text-white mr-2"
-              disabled={disabled}
-            >
-              创建
-            </Button>
             <DialogClose asChild>
               <Button
                 type="button"
                 variant="secondary"
                 className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={isOpen}
+                onClick={ButtonClick}
               >
-                取消
+                创建
               </Button>
             </DialogClose>
           </DialogFooter>

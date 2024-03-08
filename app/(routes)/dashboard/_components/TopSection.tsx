@@ -5,7 +5,6 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover';
-import { useRouter } from 'next/navigation';
 import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
@@ -44,8 +43,6 @@ export default function TopSection({
   activeTeam,
   setActiveTeam
 }: TopSectionProps) {
-  const router = useRouter();
-
   const handleTeamClick = (team: TEAM) => {
     setActiveTeam(team);
   };
@@ -125,7 +122,7 @@ export default function TopSection({
       </Popover>
       <Button
         variant="outline"
-        className="w-full justify-start gap-2 font-bold mt-8"
+        className="w-full justify-start gap-2 font-bold mt-8 bg-blue-600 hover:bg-blue-700 text-white hover:text-white"
       >
         <LayoutGrid size={20} />
         全部文件

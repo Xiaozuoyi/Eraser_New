@@ -1,6 +1,7 @@
 import { Archive, Flag, Github } from 'lucide-react';
 import MenuItem from './MenuItem';
 import AddFileDialog from './AddFileDialog';
+import { Progress } from '@/components/ui/progress';
 
 const menuItems = [
   {
@@ -20,18 +21,24 @@ const menuItems = [
   }
 ];
 
-export default function BottomSection() {
+type BottomSectionProps = {
+  onFileCreate: (fileName: string) => void;
+  totalFiles: number;
+};
+export default function BottomSection({
+  onFileCreate,
+  totalFiles
+}: BottomSectionProps) {
   return (
     <>
       {menuItems.map((item) => (
         <MenuItem key={item.name} {...item} />
       ))}
-      <AddFileDialog />
-      <div className="h-4 w-full bg-gray-200 rounded-full mt-5">
-        <div className="h-4 w-[40%] bg-blue-600 rounded-full"></div>
-      </div>
+      <AddFileDialog onFileCreate={onFileCreate} totalFiles={totalFiles} />
+      <Progress value={totalFiles * 20} className="mt-5 bg-gray-200" />
       <p className="text-[12px] mt-3">
-        使用了 <strong>1</strong> 个文件，还有 <strong>3</strong> 个没有使用
+        使用了 <strong>{totalFiles}</strong> 个文件，还有{' '}
+        <strong>{5 - totalFiles}</strong> 个没有使用
       </p>
       <p className="text-[12px] mt-1">升级计划，实现无限制访问</p>
     </>

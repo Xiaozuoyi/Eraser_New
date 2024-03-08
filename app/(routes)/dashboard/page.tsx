@@ -1,14 +1,12 @@
 'use client';
-import { Button } from '@/components/ui/button';
+import FileList from './_components/FileList';
 import { api } from '@/convex/_generated/api';
 import { useConvex } from 'convex/react';
 
-import {
-  LogoutLink,
-  useKindeBrowserClient
-} from '@kinde-oss/kinde-auth-nextjs';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import { useMutation } from 'convex/react';
 import { useEffect } from 'react';
+import Header from './_components/Header';
 
 /**
  * 仪表盘页面
@@ -45,12 +43,9 @@ function Dashboard() {
   };
 
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>This is the dashboard page</p>
-      <Button>
-        <LogoutLink>Logout</LogoutLink>
-      </Button>
+    <div className="p-8">
+      <Header />
+      <FileList />
     </div>
   );
 }
