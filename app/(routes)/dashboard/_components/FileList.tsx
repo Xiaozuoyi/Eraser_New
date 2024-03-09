@@ -5,7 +5,6 @@ import {
   getCoreRowModel,
   useReactTable
 } from '@tanstack/react-table';
-
 import {
   Table,
   TableBody,
@@ -14,67 +13,82 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { useEffect, useState } from 'react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import dayjs from 'dayjs';
+import { Archive, MoreHorizontal } from 'lucide-react';
+import { useContext, useEffect, useState } from 'react';
+import { FilesListContext } from '@/app/_context/FilesListContext';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import { type FileListing } from '@/app/_context/FilesListContext';
+import { useRouter } from 'next/navigation';
 
-type Payment = {
-  id: string;
-  amount: number;
-  status: 'pending' | 'processing' | 'success' | 'failed';
-  email: string;
-  createdAt: string;
-  edited: string;
+type FileItem = {
+  filename: string;
+  createdAt: string | number;
+  editedAt: string | number;
   author: string;
+  _id: string;
 };
-
-const columns: ColumnDef<Payment>[] = [
+const fileColumns: ColumnDef<FileItem>[] = [
   {
-    accessorKey: 'id',
-    header: 'Status'
+    accessorKey: 'filename',
+    header: '文件名'
   },
   {
-    accessorKey: 'email',
-    header: 'Email'
-  },
-  {
-    accessorKey: 'amount',
-    header: () => <div className="text-center">Amount</div>,
+    accessorKey: 'createdAt',
+    header: '创建时间',
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('amount'));
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      }).format(amount);
-
-      return <div className="text-center font-medium">{formatted}</div>;
+      const createdAt = row.getValue('createdAt') as string | number;
+      return <div>{dayjs(createdAt).format('YYYY/MM/DD')}</div>;
     }
   },
   {
-    accessorKey: 'status',
-    header: () => <div className="text-center">Status</div>,
+    accessorKey: 'editedAt',
+    header: '编辑时间',
     cell: ({ row }) => {
-      const status = row.getValue('status') as Payment['status'];
+      const editedAt = row.getValue('editedAt') as string | number;
+      return <div>{dayjs(editedAt).format('YYYY/MM/DD')}</div>;
+    }
+  },
+  {
+    accessorKey: 'author',
+    header: '创建者',
+    cell: ({ row }) => {
       return (
-        <div
-          className={`text-center ${
-            status === 'success'
-              ? 'text-green-500'
-              : status === 'failed'
-              ? 'text-red-500'
-              : 'text-yellow-500'
-          }`}
-        >
-          {status}
+        <div className="flex items-center justify-center">
+          <img
+            src={row.getValue('author') as string}
+            alt="author"
+            className="w-8 h-8 rounded-full"
+          />
         </div>
       );
     }
   },
   {
-    accessorKey: 'createdAt',
-    header: 'Created At'
-  },
-  {
-    accessorKey: 'edited',
-    header: 'Edited'
+    accessorKey: '_id',
+    header: '操作',
+    cell: () => {
+      return (
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="!outline-none h-full w-full flex items-center justify-center">
+              <MoreHorizontal size={25} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem className="gap-3">
+                <Archive size={20} /> Archive
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
+      );
+    }
   }
 ];
 
@@ -82,26 +96,31 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
-
 function DataTable<TData, TValue>({
-  columns,
-  data
+  data,
+  columns
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel()
   });
-
+  const router = useRouter();
+  const jumpRouter = (id: string) => {
+    router.push(`/workspace/${id}`);
+  };
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border ">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="text-center font-medium"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -120,6 +139,10 @@ function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
+                className="text-center"
+                onClick={() => {
+                  jumpRouter(row.getValue('_id') as string);
+                }}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
@@ -130,9 +153,7 @@ function DataTable<TData, TValue>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
+              <TableCell colSpan={columns.length}>No data</TableCell>
             </TableRow>
           )}
         </TableBody>
@@ -140,45 +161,35 @@ function DataTable<TData, TValue>({
     </div>
   );
 }
-async function getData(): Promise<Payment[]> {
-  // 从这里获取您的API数据。
-  return [
-    {
-      id: '728ed52f',
-      amount: 100,
-      status: 'pending',
-      email: 'm@example.com',
-      createdAt: '2021-06-01',
-      edited: '2021-06-01',
-      author: 'John Doe'
-    },
-    {
-      id: '728ed52f',
-      amount: 100,
-      status: 'success',
-      email: 'm@example.com',
-      createdAt: '2021-06-01',
-      edited: '2021-06-01',
-      author: 'John Doe'
-    }
-  ];
-}
-function FileList() {
-  const [data, setData] = useState<Payment[]>([]);
+function TestTable() {
+  const [data, setData] = useState<FileItem[]>([]);
+  const { user }: any = useKindeBrowserClient();
+  const context = useContext(FilesListContext);
+  if (!context) {
+    throw new Error('useFilesList must be used within a FilesListProvider');
+  }
+  const { fileListings } = context;
+
   useEffect(() => {
-    const fetchData = async () => {
-      const result = await getData();
-      setData(result);
-    };
-    fetchData();
-  }, []);
+    if (fileListings) {
+      const files = fileListings.map((file: FileListing) => {
+        return {
+          filename: file.fileName,
+          createdAt: file._creationTime,
+          editedAt: file._creationTime,
+          author: user?.picture,
+          _id: file._id
+        };
+      });
+      setData(files);
+    }
+  }, [fileListings]);
+
   return (
-    <div>
-      <div className="container mx-auto py-10">
-        <DataTable columns={columns} data={data} />
-      </div>
+    <div className="mt-10">
+      <DataTable data={data} columns={fileColumns} />
     </div>
   );
 }
 
-export default FileList;
+export default TestTable;

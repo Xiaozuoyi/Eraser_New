@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-interface FileListing {
+export interface FileListing {
   _creationTime: number;
   _id: string;
   archive: boolean;

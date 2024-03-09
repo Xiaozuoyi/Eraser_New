@@ -1,8 +1,8 @@
-# Eraser (橡皮擦)
+# Eraser ( 橡皮擦 )
 
 ## Getting Started
 
-首先，运行开发服务器:
+首先，运行开发服务器 :
 
 ```bash
 npm run dev
@@ -13,6 +13,14 @@ pnpm dev
 # or
 bun dev
 ```
+
+后端服务器 -- Convex
+
+```bash
+npx convex dev
+```
+
+用浏览器打开 http://localhost:3000，查看结果。
 
 ## 技术栈
 
@@ -27,8 +35,6 @@ bun dev
 - convex -- 一个后端应用程序平台
 
 ---
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
