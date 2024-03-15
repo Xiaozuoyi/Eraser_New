@@ -1,5 +1,5 @@
-import { v } from 'convex/values';
-import { mutation, query } from './_generated/server';
+import {v} from 'convex/values';
+import {mutation, query} from './_generated/server';
 
 /**
  * 创建新文件。
@@ -13,18 +13,18 @@ import { mutation, query } from './_generated/server';
  * @returns 解析为创建文件的Promise。
  */
 export const createFile = mutation({
-  args: {
-    fileName: v.string(),
-    teamId: v.string(),
-    createdBy: v.string(),
-    archive: v.boolean(),
-    document: v.string(),
-    whiteboard: v.string()
-  },
-  handler: async (ctx, args) => {
-    const result = await ctx.db.insert('files', args);
-    return result;
-  }
+    args: {
+        fileName: v.string(),
+        teamId: v.string(),
+        createdBy: v.string(),
+        archive: v.boolean(),
+        document: v.string(),
+        whiteboard: v.string()
+    },
+    handler: async (ctx, args) => {
+        const result = await ctx.db.insert('files', args);
+        return result;
+    }
 });
 
 /**
@@ -34,15 +34,42 @@ export const createFile = mutation({
  * @returns {Promise<Array<Object>>} - 解析为文件数组的Promise。
  */
 export const getFiles = query({
-  args: {
-    teamId: v.string()
-  },
-  handler: async (ctx, args) => {
-    const result = ctx.db
-      .query('files')
-      .filter((q) => q.eq(q.field('teamId'), args.teamId))
-      .order('desc')
-      .collect();
-    return result;
-  }
+    args: {
+        teamId: v.string()
+    },
+    handler: async (ctx, args) => {
+        const result = ctx.db
+            .query('files')
+            .filter((q) => q.eq(q.field('teamId'), args.teamId))
+            .order('desc')
+            .collect();
+        return result;
+    }
+});
+
+/**
+ * 根据提供的文件ID检索文件。
+ *
+ * @param {string} fileId - 文件的ID。
+ * @returns {Promise<Object>} - 解析为文件的Promise。
+ */
+export const updateDocument = mutation({
+    args: {
+        _id: v.id("files"),
+        document: v.string()
+    },
+    handler: async (ctx, args) => {
+        const result = await ctx.db.patch(args._id, {document: args.document});
+        return result;
+    }
+});
+
+export const getFileById = query({
+    args: {
+        fileId: v.id("files")
+    },
+    handler: async (ctx, args) => {
+        const result = await ctx.db.get(args.fileId);
+        return result;
+    }
 });
