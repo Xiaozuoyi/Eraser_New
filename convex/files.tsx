@@ -51,7 +51,7 @@ export const getFiles = query({
  * 根据提供的文件ID检索文件。
  *
  * @param {string} fileId - 文件的ID。
- * @returns {Promise<Object>} - 解析为文件的Promise。
+ * @returns {Promise<Object>} - 解析为更新后的文件的Promise。
  */
 export const updateDocument = mutation({
     args: {
@@ -63,13 +63,39 @@ export const updateDocument = mutation({
         return result;
     }
 });
-
+/**
+ * 该函数是一个通过 ID 检索文件的查询。
+ *
+ * @function getFileById
+ * @param {Object} args - 查询的参数。
+ * @param {string} args.fileId - 要检索的文件的ID。
+ * @returns {Promise<Object>} - 解析为检索到的文件的Promise。
+ */
 export const getFileById = query({
     args: {
         fileId: v.id("files")
     },
     handler: async (ctx, args) => {
         const result = await ctx.db.get(args.fileId);
+        return result;
+    }
+});
+/**
+ * 这个函数是一个变异，它通过文件的ID更新白板的内容。
+ *
+ * @function updateWhiteboard
+ * @param {Object} args - 变异的参数。
+ * @param {string} args.fileId - 要更新的文件的ID。
+ * @param {string} args.whiteboard - 新的白板内容。
+ * @returns {Promise<Object>} - 解析为更新后的文件的Promise。
+ */
+export const updateWhiteboard = mutation({
+    args: {
+        fileId: v.id("files"),
+        whiteboard: v.string()
+    },
+    handler: async (ctx, args) => {
+        const result = await ctx.db.patch(args.fileId, {whiteboard: args.whiteboard});
         return result;
     }
 });

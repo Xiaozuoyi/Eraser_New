@@ -8,60 +8,7 @@ import List from '@editorjs/list';
 import Checklist from '@editorjs/checklist';
 import {useMutation} from "convex/react";
 import {api} from "@/convex/_generated/api";
-import {toast} from "sonner";
-
-// 该函数将确保组件只渲染一次
-const RenderEditor = (ElementId: string, fileData: FILE, onSave: (content: any) => void) => {
-    const rendered = useRef<false | true>(false);
-    useEffect(() => {
-        if (!rendered.current) {
-            rendered.current = true;
-            //在这里，我们调用 EditorJS 运行，还可以向它传递运行所需的参数
-            const editor = new EditorJS({
-                holder: ElementId,
-                tools: {
-                    header: {
-                        class: Header as any,
-                        shortcut: 'CMD+SHIFT+H',
-                        config: {
-                            placeholder: '输入标题'
-                        }
-                    },
-                    list: {
-                        class: List,
-                        inlineToolbar: true,
-                        shortcut: 'CMD+SHIFT+L',
-                        config: {
-                            defaultStyle: 'unordered'
-                        }
-                    },
-
-                    checklist: {
-                        class: Checklist,
-                        inlineToolbar: true,
-                        shortcut: 'CMD+SHIFT+C',
-                        config: {
-                            defaultStyle: 'checked'
-                        }
-                    }
-                },
-                data: fileData?.document ? JSON.parse(fileData.document) : INITIAL_DOCUMENT,
-                onChange() {
-                    if (editor) {
-                        editor.save().then(onSave).catch(error => {
-                            console.error('Saving failed: ', error);
-                        });
-                    }
-                }
-            })
-        } else {
-            return () => {
-                // 在组件卸载时，我们将 rendered.current 设置为 false，以便在下次组件渲染时重新渲染编辑器
-                rendered.current = false;
-            }
-        }
-    }, [ElementId]);
-};
+import {toast} from '@/components/ui/use-toast';
 
 interface FILE {
     archive: boolean,
@@ -100,35 +47,93 @@ const INITIAL_DOCUMENT = {
 type EditorProps = {
     onSaveTrigger: boolean; // 如果 onSaveTrigger 是一个标志，表示是否该保存文档，我们可以将其类型定义为 boolean
     fileId: string; // 假设 fileId 是字符串形式的唯一标识符
-    fileData: FILE | null; // 假设 FILE 已经是一个类型定义
+    fileData: FILE; // 假设 FILE 已经是一个类型定义
+    onKeep: () => void; // onSave 是一个函数，它将在保存文档时被调用
 };
 
-function Editor({onSaveTrigger, fileId, fileData}: EditorProps) {
+
+function Editor({onSaveTrigger, fileId, fileData, onKeep}: EditorProps) {
     const editorId = 'editorjs';
     const updateDocument = useMutation(api.files.updateDocument);
+    const editorInstance = useRef<EditorJS | undefined>(undefined)
     const onSave = (outputData: any) => {
         updateDocument({
             _id: fileId as any,
             document: JSON.stringify(outputData)
         }).then(() => {
-            toast.success('Document Updated!');
+            onKeep();
+            toast({
+                title: "Document saved",
+                description: "Your document has been saved successfully",
+            })
         }).catch(() => {
-            toast.error("Server Error!");
+            toast({
+                title: "Document save failed",
+                description: "Your document failed to save",
+            })
         });
     }
+    const performSave = async () => {
+        if (editorInstance.current && typeof editorInstance.current.save === "function") {
+            try {
+                const savedData = await editorInstance.current.save();
+                onSave(savedData);
+            } catch (e) {
+                console.error('Save failed:', e);
+            }
+        }
+    };
+
+    // 初始化 EditorJS 实例
+    useEffect(() => {
+        if (!editorInstance.current && fileData) {
+            editorInstance.current = new EditorJS({
+                holder: editorId,
+                tools: {
+                    header: {
+                        class: Header as any,
+                        inlineToolbar: true,
+                        shortcut: 'CMD+SHIFT+H',
+                        config: {
+                            placeholder: '输入标题'
+                        }
+                    },
+                    list: {
+                        class: List,
+                        inlineToolbar: true,
+                        shortcut: 'CMD+SHIFT+L',
+                        config: {
+                            defaultStyle: 'unordered'
+                        }
+                    },
+
+                    checklist: {
+                        class: Checklist,
+                        inlineToolbar: true,
+                        shortcut: 'CMD+SHIFT+C',
+                        config: {
+                            defaultStyle: 'checked'
+                        }
+                    }
+                },
+                data: fileData?.document ? JSON.parse(fileData.document) : INITIAL_DOCUMENT,
+            })
+        }
+        return () => {
+            if (editorInstance.current && typeof editorInstance.current.destroy === 'function') {
+                editorInstance.current.destroy();
+                editorInstance.current = undefined;
+            }
+        }
+    }, [fileData]);
     // 监听 onSaveTrigger 的变化来保存文档
     useEffect(() => {
         if (onSaveTrigger) {
-            onSave(fileData?.document ? JSON.parse(fileData.document) : INITIAL_DOCUMENT);
+            performSave();
         }
     }, [onSaveTrigger]);
 
-    // 调用 RenderEditor 渲染编辑器
-    if (fileData) {
-        RenderEditor(editorId, fileData, onSave);
-    }
-
-    return <div id={editorId} className="ml-20"></div>;
+    return <div id={editorId} className="ml-20 h-[90vh]"></div>;
 }
 
 export default Editor;

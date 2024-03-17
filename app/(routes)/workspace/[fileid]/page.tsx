@@ -22,29 +22,52 @@ const Editor = dynamic(() => import('../_components/Editor'), {
     loading: () => <p>loading...</p>
 });
 
+const Canvas = dynamic(() => import('../_components/Canvas'), {
+    ssr: false, loading: () => <p>loading...</p>
+});
+
 function Workspace({params}: any) {
     const [triggerSave, setTriggerSave] = useState(false);
     const [fileData, setFileData] = useState<FILE | null>(null);
     const convex = useConvex();
     useEffect(() => {
         const getFileData = async () => {
-            const result = await convex.query(api.files.getFileById, {fileId: params.fileId})
-            setFileData(result)
+            try {
+                const fileData = await convex.query(api.files.getFileById, {fileId: params.fileid});
+                setFileData(fileData);
+            } catch (e) {
+                console.error(e);
+            }
         }
-        params.fileId && getFileData()
+        params.fileid && getFileData()
     }, []);
     return (
         <>
-            <WorkspaceHeader/>
+            <WorkspaceHeader onSave={() => setTriggerSave(!triggerSave)}/>
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={50}>
-                    <div className="h-screen">
-                        <Editor onSaveTrigger={triggerSave} fileId={params.fileId} fileData={fileData}/>
-                    </div>
+                    {
+                        fileData &&
+                        <Editor
+                            onSaveTrigger={triggerSave}
+                            fileId={params.fileid}
+                            fileData={fileData}
+                            onKeep={() => setTriggerSave(false)}
+                        />
+                    }
                 </ResizablePanel>
                 <ResizableHandle withHandle/>
                 <ResizablePanel defaultSize={50}>
-                    <h2 className="h-screen">Two</h2>
+
+                    {
+                        fileData &&
+                        <Canvas
+                            onSaveTrigger={triggerSave}
+                            fileId={params.fileid}
+                            fileData={fileData}
+                            onKeep={() => setTriggerSave(false)}
+                        />
+                    }
                 </ResizablePanel>
             </ResizablePanelGroup>
         </>
