@@ -22,9 +22,12 @@ import {
 import dayjs from 'dayjs';
 import { Archive, MoreHorizontal } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
-import { FilesListContext } from '@/app/_context/FilesListContext';
+import {
+  type FileListing,
+  FilesListContext
+} from '@/app/_context/FilesListContext';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
-import { type FileListing } from '@/app/_context/FilesListContext';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 
 type FileItem = {
@@ -61,11 +64,10 @@ const fileColumns: ColumnDef<FileItem>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center">
-          <img
-            src={row.getValue('author') as string}
-            alt="author"
-            className="w-8 h-8 rounded-full"
-          />
+          <Avatar>
+            <AvatarImage src={row.getValue('author')} />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
         </div>
       );
     }
@@ -96,6 +98,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
+
 function DataTable<TData, TValue>({
   data,
   columns
@@ -161,6 +164,7 @@ function DataTable<TData, TValue>({
     </div>
   );
 }
+
 function TestTable() {
   const [data, setData] = useState<FileItem[]>([]);
   const { user }: any = useKindeBrowserClient();

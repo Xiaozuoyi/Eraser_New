@@ -44,7 +44,10 @@ function Canvas({onSaveTrigger, fileId, fileData, onKeep}: CanvasProps) {
         <div style={{height: "90vh"}}>
             <Excalidraw
                 theme="light"
-                initialData={{elements: fileData?.whiteboard && JSON.parse(fileData?.whiteboard)}}
+                initialData={{
+                    elements: fileData?.whiteboard && JSON.parse(fileData?.whiteboard),
+                    scrollToContent: true
+                }}
                 onChange={(DirectDrawElements) => setWhiteBoarData(DirectDrawElements)}
                 UIOptions={{
                     canvasActions: {

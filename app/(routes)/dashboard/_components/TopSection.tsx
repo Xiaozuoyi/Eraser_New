@@ -8,6 +8,7 @@ import {
 import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TEAM } from './SideNav';
 import MenuItem from './MenuItem';
 
@@ -46,7 +47,6 @@ export default function TopSection({
   const handleTeamClick = (team: TEAM) => {
     setActiveTeam(team);
   };
-
   return (
     <>
       <Popover>
@@ -54,8 +54,8 @@ export default function TopSection({
           <div className="max-w-44 flex items-center gap-2 hover:bg-slate-200 p-2 rounded-lg cursor-pointer dark:hover:bg-white/45">
             <Image
               src="/TeamLogo.svg"
-              width={0}
-              height={0}
+              width={30}
+              height={30}
               alt="logo"
               priority={true}
               style={{ width: 30, height: 30 }}
@@ -102,14 +102,10 @@ export default function TopSection({
           </div>
           <Separator className="mt-2" />
           <div className="mt-2 flex gap-2 items-center">
-            <Image
-              src={user?.picture}
-              alt="user"
-              width={0}
-              height={0}
-              style={{ width: 30, height: 30 }}
-              className="rounded-full"
-            />
+            <Avatar>
+              <AvatarImage src={user.picture} />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
             <div>
               <p className="text-[14px] font-bold">
                 {user?.given_name}&nbsp;
